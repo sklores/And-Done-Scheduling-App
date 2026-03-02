@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Shift — GCDC</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #f5f3ee;
+      --surface: #ffffff;
+      --border: #d9d5cc;
+      --text: #1a1916;
+      --text-muted: #6b6860;
+      --accent: #c84b2f;
+      --green: #2d5a27;
+      --header-bg: #1a1916;
+      --radius: 3px;
+      --mono: 'IBM Plex Mono', monospace;
+      --sans: 'IBM Plex Sans', sans-serif;
+    }
+
+    body {
+      font-family: var(--sans);
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    header {
+      background: var(--header-bg);
+      color: #fff;
+      padding: 0 24px;
+      height: 52px;
+      display: flex;
+      align-items: center;
+    }
+
+    header .logo {
+      font-family: var(--mono);
+      font-size: 20px;
+      font-weight: 600;
+      letter-spacing: -0.5px;
+      color: #fff;
+    }
+
+    header .business {
+      font-family: var(--mono);
+      font-size: 11px;
+      color: rgba(255,255,255,0.4);
+      margin-left: 12px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 48px 24px;
+    }
+
+    .tagline {
+      font-family: var(--mono);
+      font-size: 13px;
+      color: var(--text-muted);
+      letter-spacing: 0.5px;
+      margin-bottom: 48px;
+      text-transform: uppercase;
+    }
+
+    .portal-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      width: 100%;
+      max-width: 320px;
+    }
+
+    .portal-btn {
+      display: block;
+      padding: 16px 24px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--surface);
+      color: var(--text);
+      text-decoration: none;
+      font-family: var(--mono);
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: border-color 0.1s, background 0.1s;
+      text-align: center;
+    }
+
+    .portal-btn:hover {
+      border-color: var(--text);
+      background: #f0ede8;
+    }
+
+    .portal-btn.primary {
+      background: var(--text);
+      color: #fff;
+      border-color: var(--text);
+    }
+
+    .portal-btn.primary:hover {
+      background: #2d2b27;
+    }
+
+    .portal-btn .label {
+      display: block;
+      font-size: 15px;
+      margin-bottom: 2px;
+    }
+
+    .portal-btn .sublabel {
+      display: block;
+      font-size: 11px;
+      opacity: 0.5;
+      font-weight: 400;
+    }
+
+    .owner-link {
+      margin-top: 48px;
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--border);
+      cursor: pointer;
+      text-decoration: none;
+      letter-spacing: 0.5px;
+    }
+
+    .owner-link:hover {
+      color: var(--text-muted);
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <span class="logo">shift</span>
+    <span class="business">GCDC</span>
+  </header>
+
+  <main>
+    <p class="tagline">Employee Scheduling</p>
+
+    <div class="portal-grid">
+      <a href="/manager" class="portal-btn primary">
+        <span class="label">Manager Login</span>
+        <span class="sublabel">Full scheduling access</span>
+      </a>
+      <a href="/employee" class="portal-btn">
+        <span class="label">Employee Portal</span>
+        <span class="sublabel">View your shifts</span>
+      </a>
+    </div>
+
+    <a href="/manager?owner=1" class="owner-link">owner</a>
+  </main>
+</body>
+</html>

@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Shift — My Schedule</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #f5f3ee;
+      --surface: #ffffff;
+      --border: #d9d5cc;
+      --text: #1a1916;
+      --text-muted: #6b6860;
+      --accent: #c84b2f;
+      --green: #2d5a27;
+      --header-bg: #1a1916;
+      --radius: 3px;
+      --mono: 'IBM Plex Mono', monospace;
+      --sans: 'IBM Plex Sans', sans-serif;
+    }
+
+    body {
+      font-family: var(--sans);
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    header {
+      background: var(--header-bg);
+      color: #fff;
+      height: 52px;
+      padding: 0 20px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-shrink: 0;
+    }
+
+    .logo {
+      font-family: var(--mono);
+      font-size: 18px;
+      font-weight: 600;
+      color: #fff;
+    }
+
+    .business-tag {
+      font-family: var(--mono);
+      font-size: 10px;
+      color: rgba(255,255,255,0.35);
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    .header-spacer { flex: 1; }
+
+    .logout-btn {
+      background: none;
+      border: 1px solid rgba(255,255,255,0.2);
+      color: rgba(255,255,255,0.7);
+      font-family: var(--mono);
+      font-size: 11px;
+      padding: 5px 10px;
+      border-radius: var(--radius);
+      cursor: pointer;
+    }
+
+    .logout-btn:hover {
+      background: rgba(255,255,255,0.1);
+    }
+
+    /* ── PIN LOGIN ── */
+    #pin-screen {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 20px;
+    }
+
+    .pin-title {
+      font-family: var(--mono);
+      font-size: 13px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 28px;
+    }
+
+    .pin-box {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px;
+      width: 100%;
+      max-width: 300px;
+    }
+
+    .pin-display {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      margin-bottom: 20px;
+    }
+
+    .pin-digit {
+      width: 44px;
+      height: 52px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--bg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--mono);
+      font-size: 22px;
+      font-weight: 600;
+      color: var(--text);
+      transition: border-color 0.1s;
+    }
+
+    .pin-digit.filled {
+      border-color: var(--text);
+    }
+
+    .pin-digit.dot::after {
+      content: '●';
+      font-size: 12px;
+    }
+
+    .pin-keypad {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+
+    .pin-key {
+      height: 48px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--bg);
+      font-family: var(--mono);
+      font-size: 18px;
+      font-weight: 500;
+      color: var(--text);
+      cursor: pointer;
+      transition: background 0.1s, border-color 0.1s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .pin-key:hover {
+      background: #edeae4;
+      border-color: var(--text);
+    }
+
+    .pin-key:active {
+      background: #e0ddd7;
+    }
+
+    .pin-key.clear {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .pin-key.enter {
+      background: var(--text);
+      color: #fff;
+      border-color: var(--text);
+      font-size: 12px;
+    }
+
+    .pin-key.enter:hover { background: #2d2b27; }
+
+    .pin-error {
+      font-family: var(--mono);
+      font-size: 12px;
+      color: var(--accent);
+      text-align: center;
+      margin-top: 12px;
+      min-height: 20px;
+    }
+
+    /* ── SCHEDULE VIEW ── */
+    #schedule-screen {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .schedule-header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 14px 20px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .emp-greeting {
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .week-nav {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-left: auto;
+    }
+
+    .week-nav-btn {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      width: 28px;
+      height: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 14px;
+      color: var(--text);
+    }
+
+    .week-nav-btn:hover { border-color: var(--text); }
+
+    .week-label-emp {
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--text-muted);
+      min-width: 150px;
+      text-align: center;
+    }
+
+    .schedule-body {
+      flex: 1;
+      padding: 20px;
+      max-width: 640px;
+      width: 100%;
+      margin: 0 auto;
+    }
+
+    .no-shifts {
+      text-align: center;
+      padding: 60px 20px;
+      font-family: var(--mono);
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    .shift-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px;
+      margin-bottom: 10px;
+      display: flex;
+      gap: 16px;
+      align-items: flex-start;
+    }
+
+    .shift-card-day {
+      text-align: center;
+      min-width: 44px;
+      flex-shrink: 0;
+    }
+
+    .shift-card-dayname {
+      font-family: var(--mono);
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--text-muted);
+    }
+
+    .shift-card-daynum {
+      font-family: var(--mono);
+      font-size: 24px;
+      font-weight: 600;
+      color: var(--text);
+      line-height: 1;
+    }
+
+    .shift-card-daynum.today {
+      color: var(--accent);
+    }
+
+    .shift-card-content {
+      flex: 1;
+    }
+
+    .shift-card-time {
+      font-family: var(--mono);
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .shift-card-duration {
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    .shift-card-notes {
+      margin-top: 6px;
+      font-size: 13px;
+      color: var(--text-muted);
+      font-style: italic;
+    }
+
+    .week-summary {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 14px 16px;
+      margin-bottom: 16px;
+      display: flex;
+      gap: 24px;
+    }
+
+    .week-summary-stat {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .week-summary-label {
+      font-family: var(--mono);
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--text-muted);
+    }
+
+    .week-summary-val {
+      font-family: var(--mono);
+      font-size: 16px;
+      font-weight: 600;
+    }
+
+    .hidden { display: none !important; }
+  </style>
+</head>
+<body>
+
+<header>
+  <span class="logo">shift</span>
+  <span class="business-tag">GCDC</span>
+  <div class="header-spacer"></div>
+  <button class="logout-btn" id="logout-btn">Sign out</button>
+</header>
+
+<!-- PIN SCREEN -->
+<div id="pin-screen">
+  <div class="pin-title">Employee Portal</div>
+  <div class="pin-box">
+    <div class="pin-display">
+      <div class="pin-digit" id="d0"></div>
+      <div class="pin-digit" id="d1"></div>
+      <div class="pin-digit" id="d2"></div>
+      <div class="pin-digit" id="d3"></div>
+    </div>
+    <div class="pin-keypad">
+      <button class="pin-key" data-val="1">1</button>
+      <button class="pin-key" data-val="2">2</button>
+      <button class="pin-key" data-val="3">3</button>
+      <button class="pin-key" data-val="4">4</button>
+      <button class="pin-key" data-val="5">5</button>
+      <button class="pin-key" data-val="6">6</button>
+      <button class="pin-key" data-val="7">7</button>
+      <button class="pin-key" data-val="8">8</button>
+      <button class="pin-key" data-val="9">9</button>
+      <button class="pin-key clear" id="pin-clear">CLR</button>
+      <button class="pin-key" data-val="0">0</button>
+      <button class="pin-key enter" id="pin-enter">GO</button>
+    </div>
+    <div class="pin-error" id="pin-error"></div>
+  </div>
+</div>
+
+<!-- SCHEDULE SCREEN -->
+<div id="schedule-screen" class="hidden">
+  <div class="schedule-header">
+    <span class="emp-greeting" id="emp-greeting">Hi!</span>
+    <div class="week-nav">
+      <button class="week-nav-btn" id="emp-prev-week">&#8592;</button>
+      <span class="week-label-emp" id="emp-week-label">—</span>
+      <button class="week-nav-btn" id="emp-next-week">&#8594;</button>
+    </div>
+  </div>
+  <div class="schedule-body" id="schedule-body"></div>
+</div>
+
+<script>
+'use strict';
+
+const DAYS = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+let empToken = sessionStorage.getItem('emp_token') || '';
+let empName = sessionStorage.getItem('emp_name') || '';
+let currentWeekStart = getMondayOf(new Date());
+let pinBuffer = [];
+
+function getMondayOf(date) {
+  const d = new Date(date);
+  const day = d.getDay();
+  const diff = day === 0 ? -6 : 1 - day;
+  d.setDate(d.getDate() + diff);
+  d.setHours(0, 0, 0, 0);
+  return d;
+}
+
+function addDays(date, n) {
+  const d = new Date(date);
+  d.setDate(d.getDate() + n);
+  return d;
+}
+
+function fmtDate(date) {
+  return `${MONTHS[date.getMonth()]} ${date.getDate()}`;
+}
+
+function toDateStr(date) {
+  return date.toISOString().split('T')[0];
+}
+
+function fmtTime(tsStr) {
+  const d = new Date(tsStr);
+  const h = d.getHours();
+  const m = d.getMinutes();
+  const ampm = h >= 12 ? 'pm' : 'am';
+  const h12 = h % 12 || 12;
+  return `${h12}:${m.toString().padStart(2, '0')}${ampm}`;
+}
+
+function shiftHours(shift) {
+  return (new Date(shift.end_ts) - new Date(shift.start_ts)) / 3600000;
+}
+
+function isToday(date) {
+  const now = new Date();
+  return date.getFullYear() === now.getFullYear() &&
+         date.getMonth() === now.getMonth() &&
+         date.getDate() === now.getDate();
+}
+
+// ── PIN PAD ──
+function updatePinDisplay() {
+  for (let i = 0; i < 4; i++) {
+    const el = document.getElementById(`d${i}`);
+    el.className = 'pin-digit';
+    if (i < pinBuffer.length) {
+      el.classList.add('filled', 'dot');
+    }
+  }
+}
+
+document.querySelectorAll('.pin-key[data-val]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    if (pinBuffer.length < 4) {
+      pinBuffer.push(btn.dataset.val);
+      updatePinDisplay();
+      document.getElementById('pin-error').textContent = '';
+      if (pinBuffer.length === 4) submitPin();
+    }
+  });
+});
+
+document.getElementById('pin-clear').addEventListener('click', () => {
+  pinBuffer = [];
+  updatePinDisplay();
+  document.getElementById('pin-error').textContent = '';
+});
+
+document.getElementById('pin-enter').addEventListener('click', () => {
+  if (pinBuffer.length === 4) submitPin();
+});
+
+document.addEventListener('keydown', (e) => {
+  if (document.getElementById('pin-screen').classList.contains('hidden')) return;
+  if (e.key >= '0' && e.key <= '9' && pinBuffer.length < 4) {
+    pinBuffer.push(e.key);
+    updatePinDisplay();
+    if (pinBuffer.length === 4) submitPin();
+  } else if (e.key === 'Backspace') {
+    pinBuffer.pop();
+    updatePinDisplay();
+  } else if (e.key === 'Enter' && pinBuffer.length === 4) {
+    submitPin();
+  }
+});
+
+async function submitPin() {
+  const code = pinBuffer.join('');
+  const errEl = document.getElementById('pin-error');
+  errEl.textContent = '';
+
+  try {
+    const res = await fetch('/api/employee-login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ code })
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      errEl.textContent = data.error || 'Invalid PIN';
+      pinBuffer = [];
+      updatePinDisplay();
+      return;
+    }
+    empToken = data.token;
+    empName = data.employeeName;
+    sessionStorage.setItem('emp_token', empToken);
+    sessionStorage.setItem('emp_name', empName);
+    showSchedule();
+  } catch (e) {
+    errEl.textContent = 'Network error. Try again.';
+    pinBuffer = [];
+    updatePinDisplay();
+  }
+}
+
+// ── SCHEDULE ──
+function showSchedule() {
+  document.getElementById('pin-screen').classList.add('hidden');
+  document.getElementById('schedule-screen').classList.remove('hidden');
+  document.getElementById('emp-greeting').textContent = `Hi, ${empName.split(' ')[0]}!`;
+  loadEmpWeek();
+}
+
+function logout() {
+  empToken = '';
+  empName = '';
+  pinBuffer = [];
+  sessionStorage.removeItem('emp_token');
+  sessionStorage.removeItem('emp_name');
+  document.getElementById('pin-screen').classList.remove('hidden');
+  document.getElementById('schedule-screen').classList.add('hidden');
+  updatePinDisplay();
+  document.getElementById('pin-error').textContent = '';
+}
+
+document.getElementById('logout-btn').addEventListener('click', logout);
+
+document.getElementById('emp-prev-week').addEventListener('click', () => {
+  currentWeekStart = addDays(currentWeekStart, -7);
+  loadEmpWeek();
+});
+
+document.getElementById('emp-next-week').addEventListener('click', () => {
+  currentWeekStart = addDays(currentWeekStart, 7);
+  loadEmpWeek();
+});
+
+function updateEmpWeekLabel() {
+  const end = addDays(currentWeekStart, 6);
+  document.getElementById('emp-week-label').textContent =
+    `${fmtDate(currentWeekStart)} – ${fmtDate(end)}`;
+}
+
+async function loadEmpWeek() {
+  updateEmpWeekLabel();
+  const body = document.getElementById('schedule-body');
+  body.innerHTML = '<div style="font-family:var(--mono);font-size:12px;color:var(--text-muted);padding:40px;text-align:center;">Loading...</div>';
+
+  try {
+    const res = await fetch(`/api/employee-schedule?week_start=${toDateStr(currentWeekStart)}`, {
+      headers: { 'Authorization': `Bearer ${empToken}` }
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      if (res.status === 401) { logout(); return; }
+      throw new Error(data.error || 'Error loading schedule');
+    }
+    renderEmpSchedule(data.shifts);
+  } catch (e) {
+    body.innerHTML = `<div class="no-shifts">Error: ${e.message}</div>`;
+  }
+}
+
+function renderEmpSchedule(shifts) {
+  const body = document.getElementById('schedule-body');
+  body.innerHTML = '';
+
+  if (!shifts || shifts.length === 0) {
+    body.innerHTML = '<div class="no-shifts">No shifts scheduled this week.</div>';
+    return;
+  }
+
+  const totalHours = shifts.reduce((acc, s) => acc + shiftHours(s), 0);
+
+  // Summary card
+  const summary = document.createElement('div');
+  summary.className = 'week-summary';
+  summary.innerHTML = `
+    <div class="week-summary-stat">
+      <span class="week-summary-label">Shifts</span>
+      <span class="week-summary-val">${shifts.length}</span>
+    </div>
+    <div class="week-summary-stat">
+      <span class="week-summary-label">Total Hours</span>
+      <span class="week-summary-val">${totalHours.toFixed(1)}h</span>
+    </div>
+  `;
+  body.appendChild(summary);
+
+  const sorted = [...shifts].sort((a, b) => new Date(a.start_ts) - new Date(b.start_ts));
+
+  for (const shift of sorted) {
+    const d = new Date(shift.start_ts);
+    const dayIdx = d.getDay() === 0 ? 6 : d.getDay() - 1;
+    const hours = shiftHours(shift);
+
+    const card = document.createElement('div');
+    card.className = 'shift-card';
+    card.innerHTML = `
+      <div class="shift-card-day">
+        <div class="shift-card-dayname">${DAYS[dayIdx]}</div>
+        <div class="shift-card-daynum${isToday(d) ? ' today' : ''}">${d.getDate()}</div>
+      </div>
+      <div class="shift-card-content">
+        <div class="shift-card-time">${fmtTime(shift.start_ts)} – ${fmtTime(shift.end_ts)}</div>
+        <div class="shift-card-duration">${hours.toFixed(1)} hours</div>
+        ${shift.notes ? `<div class="shift-card-notes">${shift.notes}</div>` : ''}
+      </div>
+    `;
+    body.appendChild(card);
+  }
+}
+
+// ── BOOT ──
+if (empToken) {
+  showSchedule();
+}
+</script>
+</body>
+</html>
